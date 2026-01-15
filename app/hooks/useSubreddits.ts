@@ -3,24 +3,27 @@ import { fetchSubreddit, normalizeSubredditInput, SubredditBlock } from "../lib/
 
 type State = {
   subreddits: SubredditBlock[];
-  isLoading: boolean;
+  isAdding: boolean;
+  loadingByKey: Record<string, boolean>;
   errorMessage: string | null;
 };
 
 type Action =
-  | { type: "LOADING" }
+  | { type: "INIT"; payload: SubredditBlock[] }
   | { type: "ERROR"; message: string }
-  | { type: "ADD"; payload: SubredditBlock }
-  | { type: "REFRESH"; payload: SubredditBlock }
+  | { type: "ADD_LOADING" }
+  | { type: "ADD_SUCCESS"; payload: SubredditBlock }
+  | { type: "REFRESH_LOADING"; key: string }
+  | { type: "REFRESH_SUCCESS"; payload: SubredditBlock }
   | { type: "REMOVE"; key: string }
-  | { type: "CLEAR" }
-  | { type: "INIT"; payload: SubredditBlock[] };
+  | { type: "CLEAR" };
 
 const STORAGE_KEY = "subreddits:v1";
 
 const initialState: State = {
   subreddits: [],
-  isLoading: false,
+  isAdding: false,
+  loadingByKey: {},
   errorMessage: null,
 };
 
@@ -29,41 +32,56 @@ function reducer(state: State, action: Action): State {
     case "INIT":
       return { ...state, subreddits: action.payload };
 
-    case "LOADING":
-      return { ...state, isLoading: true, errorMessage: null };
-
     case "ERROR":
-      return { ...state, isLoading: false, errorMessage: action.message };
+      return { ...state, isAdding: false, errorMessage: action.message };
 
-    case "ADD": {
+    case "ADD_LOADING":
+      return { ...state, isAdding: true, errorMessage: null };
+
+    case "ADD_SUCCESS": {
       const exists = state.subreddits.some((s) => s.key === action.payload.key);
-      if (exists) return { ...state, isLoading: false, errorMessage: "Already added" };
+      if (exists) return { ...state, isAdding: false, errorMessage: "Already added" };
       return {
         ...state,
-        isLoading: false,
+        isAdding: false,
         errorMessage: null,
         subreddits: [...state.subreddits, action.payload],
       };
     }
 
-    case "REFRESH":
+    case "REFRESH_LOADING":
       return {
         ...state,
-        isLoading: false,
         errorMessage: null,
-        subreddits: state.subreddits.map((s) =>
-          s.key === action.payload.key ? action.payload : s
-        ),
+        loadingByKey: { ...state.loadingByKey, [action.key]: true },
       };
 
-    case "REMOVE":
+    case "REFRESH_SUCCESS": {
+      const key = action.payload.key;
+      const next = { ...state.loadingByKey };
+      delete next[key];
+
+      return {
+        ...state,
+        errorMessage: null,
+        loadingByKey: next,
+        subreddits: state.subreddits.map((s) => (s.key === key ? action.payload : s)),
+      };
+    }
+
+    case "REMOVE": {
+      const next = { ...state.loadingByKey };
+      delete next[action.key];
+
       return {
         ...state,
         subreddits: state.subreddits.filter((s) => s.key !== action.key),
+        loadingByKey: next,
       };
+    }
 
     case "CLEAR":
-      return { ...state, subreddits: [] };
+      return { ...state, subreddits: [], loadingByKey: {} };
 
     default:
       return state;
@@ -75,7 +93,6 @@ function safeParseSubreddits(value: string | null): SubredditBlock[] {
   try {
     const parsed = JSON.parse(value);
     if (!Array.isArray(parsed)) return [];
-    // basic shape validation
     return parsed
       .filter((x) => x && typeof x.key === "string" && typeof x.sub_name === "string")
       .map((x) => ({
@@ -99,14 +116,12 @@ function safeParseSubreddits(value: string | null): SubredditBlock[] {
 export function useSubreddits() {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  // 1) Load once on mount
   useEffect(() => {
     if (typeof window === "undefined") return;
     const saved = safeParseSubreddits(window.localStorage.getItem(STORAGE_KEY));
     dispatch({ type: "INIT", payload: saved });
   }, []);
 
-  // 2) Persist whenever list changes
   useEffect(() => {
     if (typeof window === "undefined") return;
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state.subreddits));
@@ -119,23 +134,24 @@ export function useSubreddits() {
       return;
     }
 
-    dispatch({ type: "LOADING" });
+    dispatch({ type: "ADD_LOADING" });
 
     try {
       const block = await fetchSubreddit(normalized);
-      dispatch({ type: "ADD", payload: block });
+      dispatch({ type: "ADD_SUCCESS", payload: block });
     } catch (e: any) {
       dispatch({ type: "ERROR", message: e?.message ?? "Failed to add subreddit" });
     }
   }, []);
 
   const refreshSubreddit = useCallback(async (key: string, subName: string) => {
-    dispatch({ type: "LOADING" });
+    dispatch({ type: "REFRESH_LOADING", key });
 
     try {
       const block = await fetchSubreddit(subName);
-      dispatch({ type: "REFRESH", payload: { ...block, key } });
+      dispatch({ type: "REFRESH_SUCCESS", payload: { ...block, key } });
     } catch (e: any) {
+      dispatch({ type: "REFRESH_SUCCESS", payload: { key, sub_name: subName, posts: [] } as any });
       dispatch({ type: "ERROR", message: e?.message ?? "Failed to refresh subreddit" });
     }
   }, []);
@@ -150,7 +166,8 @@ export function useSubreddits() {
 
   return {
     subreddits: state.subreddits,
-    isLoading: state.isLoading,
+    isAdding: state.isAdding,
+    loadingByKey: state.loadingByKey,
     errorMessage: state.errorMessage,
     addSubreddit,
     refreshSubreddit,
