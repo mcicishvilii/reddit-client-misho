@@ -1,0 +1,277 @@
+.main {
+  padding: 16px;
+}
+
+.header {
+  margin-bottom: 12px;
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.input {
+  padding: 8px;
+  width: 260px;
+}
+
+.error {
+  margin-bottom: 12px;
+}
+
+.subredditRow {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 12px 0;
+}
+
+
+.subredditCard {
+  flex: 0 0 320px;
+  width: 320px;
+  height: 360px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 12px;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.subredditHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.subredditTitle {
+  margin: 0;
+  font-size: 16px;
+}
+
+.postList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.postItem {
+  padding: 8px 0;
+}
+
+.subredditRow {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 12px 0;
+}
+
+.subredditCard {
+  flex: 0 0 320px;
+  width: 320px;
+  height: 360px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 12px;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.subredditHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.postList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+  flex: 1;
+}
+.postLink {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: block;
+  text-decoration: none;
+}
+
+.postRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.votes {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.separator {
+  border: 0;
+  border-top: 1px solid #eee;
+  margin: 8px 0;
+}
+
+.loading {
+  margin-top: 12px;
+}
+
+.menuWrap {
+  position: relative;
+}
+
+.menuButton {
+  width: 32px;
+  height: 28px;
+  border: 1px solid color-mix(in srgb, var(--foreground) 30%, transparent);
+  border-radius: 8px;
+  background: var(--background);
+  color: var(--foreground);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.menuButton:hover {
+  background: color-mix(in srgb, var(--foreground) 8%, var(--background));
+}
+
+.dropdown {
+  position: absolute;
+  right: 0;
+  top: 34px;
+  min-width: 140px;
+  border: 1px solid color-mix(in srgb, var(--foreground) 30%, transparent);
+  border-radius: 10px;
+  background: var(--background);
+  color: var(--foreground);
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  z-index: 20;
+}
+
+.dropdownItem {
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  background: transparent;
+  color: var(--foreground);
+  border: 0;
+  cursor: pointer;
+}
+
+.dropdownItem:hover {
+  background: color-mix(in srgb, var(--foreground) 10%, var(--background));
+}
+
+.dropdownSeparator {
+  height: 1px;
+  margin: 4px 0;
+  background: color-mix(in srgb, var(--foreground) 20%, transparent);
+}
+
+.addCircleButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--foreground) 30%, transparent);
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.addCircleButton:hover {
+  background: color-mix(in srgb, var(--foreground) 8%, var(--background));
+}
+
+.addDialog {
+  border: 1px solid color-mix(in srgb, var(--foreground) 25%, transparent);
+  border-radius: 14px;
+  padding: 0;
+  background: var(--background);
+  color: var(--foreground);
+  width: min(420px, calc(100% - 32px));
+}
+
+.addDialog::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.addDialogContent {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.addDialogTitle {
+  margin: 0;
+  font-size: 14px;
+}
+
+.addDialogInput {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--foreground);
+  background: var(--background);
+  color: var(--foreground);
+  outline: none;
+}
+
+.addDialogInput:focus {
+  border-color: color-mix(in srgb, var(--foreground) 70%, transparent);
+}
+
+.addDialogActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.addDialogCancel {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--foreground) 30%, transparent);
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+}
+
+.addDialogCancel:hover {
+  background: color-mix(in srgb, var(--foreground) 8%, var(--background));
+}
+
+.addDialogSubmit {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--foreground);
+  background: var(--foreground);
+  color: var(--background);
+  cursor: pointer;
+}
+
+.addDialogSubmit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
