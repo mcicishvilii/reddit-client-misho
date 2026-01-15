@@ -275,3 +275,19 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 2px solid color-mix(in srgb, var(--foreground) 25%, transparent);
+  border-top-color: var(--foreground);
+  display: inline-block;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

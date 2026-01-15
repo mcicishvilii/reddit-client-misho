@@ -7,7 +7,8 @@ import styles from "./css/page.module.css";
 export default function Home() {
   const {
     subreddits,
-    isLoading,
+    isAdding,
+    loadingByKey,
     errorMessage,
     addSubreddit,
     refreshSubreddit,
@@ -40,14 +41,15 @@ export default function Home() {
         <button
           className={styles.addCircleButton}
           onClick={openAddDialog}
-          disabled={isLoading}
+          disabled={isAdding}
           aria-label="Add subreddit"
           title="Add subreddit"
         >
           +
         </button>
 
-        <button onClick={clearAll} disabled={isLoading || subreddits.length === 0}>
+        {/* Clear should NOT be blocked by refresh of a single card */}
+        <button onClick={clearAll} disabled={subreddits.length === 0}>
           Clear
         </button>
       </div>
@@ -78,7 +80,7 @@ export default function Home() {
               type="button"
               className={styles.addDialogCancel}
               onClick={closeAddDialog}
-              disabled={isLoading}
+              disabled={isAdding}
             >
               Cancel
             </button>
@@ -86,7 +88,7 @@ export default function Home() {
             <button
               type="submit"
               className={styles.addDialogSubmit}
-              disabled={isLoading || input.trim().length === 0}
+              disabled={isAdding || input.trim().length === 0}
             >
               Add Subreddit
             </button>
@@ -99,6 +101,7 @@ export default function Home() {
       <div className={styles.subredditRow}>
         {subreddits.map((sub) => {
           const isMenuOpen = openMenuKey === sub.key;
+          const isRefreshing = !!loadingByKey[sub.key];
 
           return (
             <section key={sub.key} className={styles.subredditCard}>
@@ -109,12 +112,13 @@ export default function Home() {
                   <button
                     className={styles.menuButton}
                     onClick={() => setOpenMenuKey(isMenuOpen ? null : sub.key)}
-                    disabled={isLoading}
+                    disabled={isRefreshing}
                     aria-haspopup="menu"
                     aria-expanded={isMenuOpen}
                     title="Menu"
                   >
-                    ⋯
+                    {/* show spinner while this specific card is refreshing */}
+                    {isRefreshing ? <span className={styles.spinner} /> : "⋯"}
                   </button>
 
                   {isMenuOpen && (
@@ -130,7 +134,7 @@ export default function Home() {
                           setOpenMenuKey(null);
                           refreshSubreddit(sub.key, sub.sub_name);
                         }}
-                        disabled={isLoading}
+                        disabled={isRefreshing}
                       >
                         Refresh
                       </button>
@@ -144,7 +148,7 @@ export default function Home() {
                           setOpenMenuKey(null);
                           removeSubreddit(sub.key);
                         }}
-                        disabled={isLoading}
+                        disabled={isRefreshing}
                       >
                         Delete
                       </button>
@@ -178,7 +182,6 @@ export default function Home() {
         })}
       </div>
 
-      {isLoading && <div className={styles.loading}>Loading…</div>}
     </main>
   );
 }
